@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,22 +6,37 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
+// Altere conforme o IP do seu backend local
+const API_URL = "http://192.168.0.X:3001/api/historico";
+
 export default function HistoryScreen() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all"); // all, 7days, 30days
+  const [historico, setHistorico] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const historicoCompleto = [
-    { data: "26/07/2025", acao: "Irrigação Automática - 10 min" },
-    { data: "25/07/2025", acao: "Sensor registrou baixa umidade" },
-    { data: "24/07/2025", acao: "Irrigação Manual - 5 min" },
-    { data: "20/07/2025", acao: "Verificação manual dos sensores" },
-    { data: "15/07/2025", acao: "Irrigação Automática - 8 min" },
-    { data: "01/07/2025", acao: "Sensor de temperatura atualizado" },
-  ];
+  const userId = 1; // ID do usuário logado
+
+  useEffect(() => {
+    const fetchHistorico = async () => {
+      try {
+        const res = await fetch(`${API_URL}/${userId}`);
+        const data = await res.json();
+        setHistorico(data);
+      } catch (err) {
+        console.error("Erro ao buscar histórico:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistorico();
+  }, []);
 
   const filtrarPorData = (lista) => {
     if (filter === "7days") return lista.slice(0, 3);
@@ -34,7 +49,7 @@ export default function HistoryScreen() {
       item.acao.toLowerCase().includes(search.toLowerCase())
     );
 
-  const historicoFiltrado = filtrarPorBusca(filtrarPorData(historicoCompleto));
+  const historicoFiltrado = filtrarPorBusca(filtrarPorData(historico));
 
   return (
     <LinearGradient colors={["#16a34a", "#15803d"]} style={styles.gradient}>
@@ -55,35 +70,38 @@ export default function HistoryScreen() {
 
         {/* Filtros */}
         <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "all" && styles.filterActive]}
-            onPress={() => setFilter("all")}
-          >
-            <Text style={[styles.filterText, filter === "all" && styles.filterTextActive]}>Todos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "7days" && styles.filterActive]}
-            onPress={() => setFilter("7days")}
-          >
-            <Text style={[styles.filterText, filter === "7days" && styles.filterTextActive]}>7 dias</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filter === "30days" && styles.filterActive]}
-            onPress={() => setFilter("30days")}
-          >
-            <Text style={[styles.filterText, filter === "30days" && styles.filterTextActive]}>30 dias</Text>
-          </TouchableOpacity>
+          {["all", "7days", "30days"].map((opt) => (
+            <TouchableOpacity
+              key={opt}
+              style={[
+                styles.filterButton,
+                filter === opt && styles.filterActive,
+              ]}
+              onPress={() => setFilter(opt)}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  filter === opt && styles.filterTextActive,
+                ]}
+              >
+                {opt === "all" ? "Todos" : opt === "7days" ? "7 dias" : "30 dias"}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Lista de histórico */}
-        {historicoFiltrado.map((item, index) => (
-          <View key={index} style={styles.card}>
-            <Text style={styles.date}>{item.data}</Text>
-            <Text style={styles.action}>{item.acao}</Text>
-          </View>
-        ))}
-
-        {historicoFiltrado.length === 0 && (
+        {/* Conteúdo */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#fff" />
+        ) : historicoFiltrado.length > 0 ? (
+          historicoFiltrado.map((item, index) => (
+            <View key={index} style={styles.card}>
+              <Text style={styles.date}>{item.data}</Text>
+              <Text style={styles.action}>{item.acao}</Text>
+            </View>
+          ))
+        ) : (
           <Text style={styles.emptyText}>Nenhum resultado encontrado.</Text>
         )}
       </ScrollView>
@@ -110,7 +128,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   searchInput: { flex: 1, padding: 10, fontSize: 14 },
-  filterContainer: { flexDirection: "row", justifyContent: "space-between", marginBottom: 15 },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
   filterButton: {
     backgroundColor: "#fff",
     paddingVertical: 8,

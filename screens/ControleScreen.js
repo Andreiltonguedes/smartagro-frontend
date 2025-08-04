@@ -1,16 +1,57 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
+
+// Substitua pelo IP da sua máquina na rede local
+const API_URL = "http://192.168.0.X:3001/api/controle";
 
 export default function ControleScreen() {
   const [minUmidade, setMinUmidade] = useState(35);
   const [maxUmidade, setMaxUmidade] = useState(55);
 
-  const salvar = () => {
-    console.log('Salvando:', { minUmidade, maxUmidade });
-    Alert.alert('Configurações salvas', `Min: ${minUmidade}% | Max: ${maxUmidade}%`);
+  const userId = 1; // Substitua com o ID real do usuário logado
+
+  const fetchConfiguracao = async () => {
+    try {
+      const res = await fetch(`${API_URL}/${userId}`);
+      const data = await res.json();
+
+      if (res.ok && data) {
+        setMinUmidade(data.umidade_minima);
+        setMaxUmidade(data.umidade_maxima);
+      } else {
+        Alert.alert("Erro", "Não foi possível carregar os dados.");
+      }
+    } catch (err) {
+      Alert.alert("Erro", "Falha na conexão com o servidor.");
+    }
   };
+
+  const salvar = async () => {
+    try {
+      const res = await fetch(`${API_URL}/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          umidade_minima: minUmidade,
+          umidade_maxima: maxUmidade,
+        }),
+      });
+
+      if (res.ok) {
+        Alert.alert("Sucesso", "Configurações salvas com sucesso!");
+      } else {
+        Alert.alert("Erro", "Erro ao salvar configurações.");
+      }
+    } catch (err) {
+      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
+    }
+  };
+
+  useEffect(() => {
+    fetchConfiguracao();
+  }, []);
 
   return (
     <LinearGradient colors={["#16a34a", "#15803d"]} style={styles.gradient}>

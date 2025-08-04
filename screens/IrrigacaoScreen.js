@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -7,25 +13,32 @@ export default function IrrigationScreen() {
   const [bombaLigada, setBombaLigada] = useState(false);
   const [modoAutomatico, setModoAutomatico] = useState(true);
 
-  const toggleBomba = () => {
+  const handleToggleBomba = () => {
     if (modoAutomatico) {
-      Alert.alert("Irrigação", "No modo automático, o controle manual está desativado.");
-      return;
+      return Alert.alert(
+        "Modo Automático",
+        "Desative o modo automático para controlar manualmente a irrigação."
+      );
     }
-    setBombaLigada(!bombaLigada);
+
+    const novaAcao = !bombaLigada;
+    setBombaLigada(novaAcao);
+
     Alert.alert(
       "Irrigação",
-      bombaLigada ? "Bomba desligada" : "Bomba ligada",
+      novaAcao ? "Irrigação iniciada com sucesso." : "Irrigação desligada.",
       [{ text: "OK" }]
     );
   };
 
-  const toggleModo = () => {
-    setModoAutomatico(!modoAutomatico);
-    setBombaLigada(false); // ao mudar para automático, bomba manual é desligada
+  const handleToggleModo = () => {
+    const novoModo = !modoAutomatico;
+    setModoAutomatico(novoModo);
+    setBombaLigada(false); // Sempre desligar ao trocar o modo
+
     Alert.alert(
       "Modo de Irrigação",
-      !modoAutomatico ? "Modo Automático Ativado" : "Modo Manual Ativado",
+      novoModo ? "Modo Automático ativado." : "Modo Manual ativado.",
       [{ text: "OK" }]
     );
   };
@@ -35,32 +48,44 @@ export default function IrrigationScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Controle de Irrigação</Text>
 
-        {/* Card de Status */}
-        <View style={styles.statusContainer}>
+        {/* Status da bomba */}
+        <View style={styles.statusCard}>
           <Ionicons
             name={bombaLigada ? "water" : "water-outline"}
             size={100}
             color={bombaLigada ? "#16a34a" : "#9ca3af"}
             style={styles.icon}
           />
-          <Text style={[styles.statusText, bombaLigada && { color: "#16a34a" }]}>
+          <Text
+            style={[
+              styles.statusText,
+              { color: bombaLigada ? "#16a34a" : "#6b7280" },
+            ]}
+          >
             {bombaLigada ? "Bomba Ligada" : "Bomba Desligada"}
           </Text>
-          <Text style={styles.modoText}>
-            Modo: {modoAutomatico ? "Automático" : "Manual"}
+          <Text style={styles.modeText}>
+            Modo atual:{" "}
+            <Text style={{ fontWeight: "bold" }}>
+              {modoAutomatico ? "Automático" : "Manual"}
+            </Text>
           </Text>
         </View>
 
-        {/* Botão para ligar/desligar irrigação */}
+        {/* Botão principal */}
         <TouchableOpacity
           style={[
-            styles.button,
-            modoAutomatico ? styles.buttonDisabled : bombaLigada ? styles.buttonOff : styles.buttonOn,
+            styles.controlButton,
+            modoAutomatico
+              ? styles.disabledButton
+              : bombaLigada
+              ? styles.stopButton
+              : styles.startButton,
           ]}
-          onPress={toggleBomba}
+          onPress={handleToggleBomba}
           disabled={modoAutomatico}
         >
-          <Text style={styles.buttonText}>
+          <Text style={styles.controlButtonText}>
             {modoAutomatico
               ? "Controle Manual Desativado"
               : bombaLigada
@@ -69,14 +94,14 @@ export default function IrrigationScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Botão para alternar modo */}
-        <TouchableOpacity style={styles.modeButton} onPress={toggleModo}>
+        {/* Trocar modo */}
+        <TouchableOpacity style={styles.modeToggleButton} onPress={handleToggleModo}>
           <Ionicons
-            name={modoAutomatico ? "refresh-circle" : "hand-left-outline"}
+            name={modoAutomatico ? "hand-left-outline" : "refresh-circle"}
             size={22}
             color="#15803d"
           />
-          <Text style={styles.modeButtonText}>
+          <Text style={styles.modeToggleText}>
             {modoAutomatico ? "Ativar Modo Manual" : "Ativar Modo Automático"}
           </Text>
         </TouchableOpacity>
@@ -99,66 +124,59 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 30,
   },
-  statusContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+  statusCard: {
+    width: "90%",
     backgroundColor: "#fff",
     borderRadius: 16,
+    alignItems: "center",
     padding: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
     marginBottom: 40,
-    width: "90%",
+    elevation: 4,
   },
-  icon: { marginBottom: 10 },
+  icon: {
+    marginBottom: 10,
+  },
   statusText: {
     fontSize: 20,
-    color: "#6b7280",
     fontWeight: "bold",
     marginBottom: 5,
   },
-  modoText: {
+  modeText: {
     fontSize: 16,
     color: "#15803d",
-    fontWeight: "600",
   },
-  button: {
+  controlButton: {
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 12,
     elevation: 3,
-    marginBottom: 15,
+    marginBottom: 20,
   },
-  buttonOn: {
+  startButton: {
     backgroundColor: "#16a34a",
   },
-  buttonOff: {
+  stopButton: {
     backgroundColor: "#dc2626",
   },
-  buttonDisabled: {
+  disabledButton: {
     backgroundColor: "#9ca3af",
   },
-  buttonText: {
+  controlButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
   },
-  modeButton: {
+  modeToggleButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 2,
   },
-  modeButtonText: {
+  modeToggleText: {
     color: "#15803d",
     fontSize: 16,
     fontWeight: "bold",

@@ -6,23 +6,44 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
+// Coloque o IP local do seu computador
+const API_URL = "http://192.168.0.X:3001/api/cadastro";
+
 export default function CadastroScreen({ navigation }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const handleCadastro = () => {
+  const handleCadastro = async () => {
     if (!nome || !email || !senha || !confirmarSenha) {
       Alert.alert("Erro", "Por favor, preencha todos os campos.");
       return;
     }
+
     if (senha !== confirmarSenha) {
       Alert.alert("Erro", "As senhas não coincidem.");
       return;
     }
-    Alert.alert("Cadastro", "Conta criada com sucesso!");
-    navigation.navigate("Login");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email, senha }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.sucesso) {
+        Alert.alert("Cadastro", "Conta criada com sucesso!");
+        navigation.navigate("Login");
+      } else {
+        Alert.alert("Erro", data.mensagem || "Erro ao cadastrar.");
+      }
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
+    }
   };
 
   return (
@@ -31,8 +52,6 @@ export default function CadastroScreen({ navigation }) {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* <Image source={require("../assets/smart_agro.jpg")} style={styles.logo} /> */}
-
         <Text style={styles.title}>Criar Conta</Text>
         <Text style={styles.subtitle}>Preencha os dados abaixo</Text>
 

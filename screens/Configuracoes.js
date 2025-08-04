@@ -1,10 +1,64 @@
-import React from "react";
-import { View, Text, Switch, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Switch, StyleSheet, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
+// Substitua pelo IP local do seu servidor backend
+const API_URL = "http://192.168.0.X:3001/api/configuracoes";
+
 export default function Configuracoes() {
-  const [notificacoes, setNotificacoes] = React.useState(true);
-  const [modoEconomia, setModoEconomia] = React.useState(false);
+  const [notificacoes, setNotificacoes] = useState(true);
+  const [modoEconomia, setModoEconomia] = useState(false);
+
+  const userId = 1; // ID do usuário logado (exemplo fixo — ideal usar auth)
+
+  // Buscar configurações do usuário
+  const fetchConfiguracoes = async () => {
+    try {
+      const res = await fetch(`${API_URL}/${userId}`);
+      const data = await res.json();
+
+      if (res.ok && data) {
+        setNotificacoes(data.notificacoes === 1);
+        setModoEconomia(data.modo_economia === 1);
+      } else {
+        Alert.alert("Erro", "Não foi possível carregar configurações.");
+      }
+    } catch (err) {
+      Alert.alert("Erro", "Falha ao conectar ao servidor.");
+    }
+  };
+
+  // Salvar alterações
+  const salvarConfiguracoes = async (novasConfigs) => {
+    try {
+      await fetch(`${API_URL}/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novasConfigs),
+      });
+    } catch (err) {
+      Alert.alert("Erro", "Não foi possível salvar alterações.");
+    }
+  };
+
+  // Efeito inicial
+  useEffect(() => {
+    fetchConfiguracoes();
+  }, []);
+
+  // Atualizar notificações
+  const toggleNotificacoes = () => {
+    const novoValor = !notificacoes;
+    setNotificacoes(novoValor);
+    salvarConfiguracoes({ notificacoes: novoValor, modo_economia: modoEconomia });
+  };
+
+  // Atualizar modo economia
+  const toggleModoEconomia = () => {
+    const novoValor = !modoEconomia;
+    setModoEconomia(novoValor);
+    salvarConfiguracoes({ notificacoes, modo_economia: novoValor });
+  };
 
   return (
     <LinearGradient colors={["#16a34a", "#15803d"]} style={styles.gradient}>
@@ -13,9 +67,9 @@ export default function Configuracoes() {
 
         <View style={styles.itemCard}>
           <Text style={styles.itemText}>Notificações</Text>
-          <Switch 
-            value={notificacoes} 
-            onValueChange={setNotificacoes} 
+          <Switch
+            value={notificacoes}
+            onValueChange={toggleNotificacoes}
             thumbColor={notificacoes ? "#16a34a" : "#f4f3f4"}
             trackColor={{ false: "#767577", true: "#a7f3d0" }}
           />
@@ -23,9 +77,9 @@ export default function Configuracoes() {
 
         <View style={styles.itemCard}>
           <Text style={styles.itemText}>Modo Economia de Água</Text>
-          <Switch 
-            value={modoEconomia} 
-            onValueChange={setModoEconomia} 
+          <Switch
+            value={modoEconomia}
+            onValueChange={toggleModoEconomia}
             thumbColor={modoEconomia ? "#16a34a" : "#f4f3f4"}
             trackColor={{ false: "#767577", true: "#a7f3d0" }}
           />
@@ -37,10 +91,7 @@ export default function Configuracoes() {
 
 const styles = StyleSheet.create({
   gradient: { flex: 1 },
-  container: {
-    flex: 1,
-    padding: 20,
-  },
+  container: { flex: 1, padding: 20 },
   title: {
     fontSize: 22,
     fontWeight: "bold",
