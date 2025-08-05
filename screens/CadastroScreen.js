@@ -5,9 +5,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-
-// Coloque o IP local do seu computador
-const API_URL = "http://192.168.0.X:3001/api/cadastro";
+import { API_URL } from "../config";
 
 export default function CadastroScreen({ navigation }) {
   const [nome, setNome] = useState("");
@@ -27,7 +25,7 @@ export default function CadastroScreen({ navigation }) {
     }
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/api/cadastro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, email, senha }),

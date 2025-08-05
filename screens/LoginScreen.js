@@ -1,78 +1,76 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
-
-// Coloque o IP da sua máquina local aqui
-const API_URL = "http://192.168.0.X:3001/api/login";
+import React from "react";
+import {
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, KeyboardAvoidingView, Platform, Image
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert("Atenção", "Preencha todos os campos");
-      return;
-    }
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.mensagem || "Erro ao fazer login");
-      }
-
-      const data = await response.json();
-
-      if (data.sucesso) {
-        Alert.alert("Bem-vindo", `Olá, ${data.usuario.nome}`);
-        navigation.navigate("Dashboard", { usuario: data.usuario });
-      } else {
-        Alert.alert("Erro", "Credenciais inválidas");
-      }
-    } catch (error) {
-      Alert.alert("Erro", error.message);
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <LinearGradient colors={["#16a34a", "#15803d"]} style={styles.gradient}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <Image source={require("../assets/smartagro.jpg")} style={styles.logo} resizeMode="contain" />
 
-      <TextInput
-        placeholder="Email"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        <Text style={styles.title}>Entrar</Text>
+        <Text style={styles.subtitle}>Acesse sua conta</Text>
 
-      <TextInput
-        placeholder="Senha"
-        style={styles.input}
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
-      />
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail-outline" size={20} color="#15803d" style={styles.icon} />
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="#6b7280"
+            style={styles.input}
+          />
+        </View>
 
-      <Button title="Entrar" onPress={handleLogin} />
-    </View>
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed-outline" size={20} color="#15803d" style={styles.icon} />
+          <TextInput
+            placeholder="Senha"
+            placeholderTextColor="#6b7280"
+            style={styles.input}
+            secureTextEntry
+          />
+        </View>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")} style={{ width: "100%" }}>
+          <LinearGradient colors={["#22c55e", "#16a34a"]} style={styles.button}>
+            <Ionicons name="log-in-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Entrar</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
+          <Text style={styles.registerText}>
+            Ainda não tem conta? <Text style={{ fontWeight: "bold" }}>Cadastrar</Text>
+          </Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginBottom: 12,
-    padding: 10,
-    borderRadius: 6,
+  gradient: { flex: 1 },
+  container: { flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20 },
+  logo: { width: 120, height: 120, marginBottom: 20 },
+  title: { fontSize: 28, fontWeight: "bold", color: "#fff", marginBottom: 5 },
+  subtitle: { fontSize: 16, color: "#f0fdf4", marginBottom: 30 },
+  inputContainer: {
+    flexDirection: "row", alignItems: "center", backgroundColor: "#fff",
+    borderRadius: 10, paddingHorizontal: 10, marginBottom: 15,
+    width: "100%", height: 50, borderWidth: 1, borderColor: "#d1d5db",
   },
+  icon: { marginRight: 8 },
+  input: { flex: 1, padding: 12, color: "#333" },
+  button: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    padding: 14, borderRadius: 10, width: "100%", marginBottom: 15,
+  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold", marginLeft: 5 },
+  registerText: { color: "#fff", marginTop: 10 },
 });
