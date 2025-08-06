@@ -1,7 +1,7 @@
 module.exports = {
-    preset: 'jest-expo',
+    preset: 'jest-expo',  setupFiles: ['./jest.setup.js'],
     transformIgnorePatterns: [
-      // não ignorar esses módulos dentro de node_modules (ou seja, transformar eles)
+
       'node_modules/(?!(react-native|@react-native|@react-navigation|@expo|expo|expo-modules-core|@testing-library)/)',
     ],
   };

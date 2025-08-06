@@ -1,9 +1,9 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
-import ControleScreen from "../screens/ControleScreen"; // ajuste o caminho se necessário
+import ControleScreen from "../screens/ControleScreen";
 import { Alert } from "react-native";
 
-// Mocks
+
 jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
 jest.mock("expo-linear-gradient", () => ({
   LinearGradient: ({ children }) => children,
@@ -19,7 +19,7 @@ describe("ControleScreen", () => {
   });
 
   it("carrega dados iniciais corretamente", async () => {
-    // Simula resposta do backend
+
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -39,7 +39,7 @@ describe("ControleScreen", () => {
   });
 
   it("altera sliders e salva configurações", async () => {
-    // GET inicial
+
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -48,7 +48,7 @@ describe("ControleScreen", () => {
       }),
     });
 
-    // PUT resposta
+
     fetch.mockResolvedValueOnce({ ok: true });
 
     const { getByText, getAllByA11yRole } = render(<ControleScreen />);
@@ -60,9 +60,9 @@ describe("ControleScreen", () => {
     const sliders = getAllByA11yRole("adjustable");
     const salvarBtn = getByText("Salvar Configurações");
 
-    // Simula alteração dos sliders
-    fireEvent(sliders[0], "valueChange", 40); // min
-    fireEvent(sliders[1], "valueChange", 75); // max
+
+    fireEvent(sliders[0], "valueChange", 40);
+    fireEvent(sliders[1], "valueChange", 75);
 
     fireEvent.press(salvarBtn);
 

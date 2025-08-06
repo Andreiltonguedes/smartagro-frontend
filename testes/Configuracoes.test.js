@@ -1,15 +1,15 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
-import Configuracoes from "../screens/Configuracoes"; // ajuste o caminho se necessário
+import Configuracoes from "../screens/Configuracoes";
 import { Alert } from "react-native";
 
-// Mock do LinearGradient e outros
+
 jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
 jest.mock("expo-linear-gradient", () => ({
   LinearGradient: ({ children }) => children,
 }));
 
-// Mocks
+
 global.fetch = jest.fn();
 jest.spyOn(Alert, "alert");
 
@@ -20,7 +20,7 @@ describe("Configuracoes", () => {
   });
 
   it("deve renderizar corretamente e carregar configurações", async () => {
-    // Simula resposta da API
+  
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -31,23 +31,23 @@ describe("Configuracoes", () => {
 
     const { getByText, getAllByRole } = render(<Configuracoes />);
 
-    // Aguarda efeito do useEffect
+
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith("http://192.168.0.X:3001/api/configuracoes/1");
     });
 
-    // Verifica se os elementos estão visíveis
+
     expect(getByText("Configurações")).toBeTruthy();
     expect(getByText("Notificações")).toBeTruthy();
     expect(getByText("Modo Economia de Água")).toBeTruthy();
 
-    // Verifica se os switches estão renderizados
+
     const switches = getAllByRole("switch");
     expect(switches.length).toBe(2);
   });
 
   it("deve alternar notificações e chamar salvarConfiguracoes", async () => {
-    // Resposta inicial do GET
+
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -56,12 +56,12 @@ describe("Configuracoes", () => {
       }),
     });
 
-    // Mock da PUT
+
     fetch.mockResolvedValueOnce({ ok: true });
 
     const { getAllByRole } = render(<Configuracoes />);
 
-    // Aguarda carregar
+
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
@@ -69,7 +69,7 @@ describe("Configuracoes", () => {
     const switches = getAllByRole("switch");
     const notificacoesSwitch = switches[0];
 
-    // Altera o switch
+
     fireEvent(notificacoesSwitch, "valueChange", false);
 
     await waitFor(() => {
@@ -93,7 +93,7 @@ describe("Configuracoes", () => {
       }),
     });
 
-    // Mock da PUT
+
     fetch.mockResolvedValueOnce({ ok: true });
 
     const { getAllByRole } = render(<Configuracoes />);
