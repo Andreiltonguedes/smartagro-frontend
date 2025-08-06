@@ -1,10 +1,10 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import * as TestingLibrary from "@testing-library/react-native";
 import ControleScreen from "../screens/ControleScreen";
 import { Alert } from "react-native";
 
 
-jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+
 jest.mock("expo-linear-gradient", () => ({
   LinearGradient: ({ children }) => children,
 }));
@@ -28,9 +28,9 @@ describe("ControleScreen", () => {
       }),
     });
 
-    const { getByText } = render(<ControleScreen />);
+    const { getByText } = TestingLibrary.render(<ControleScreen />);
 
-    await waitFor(() => {
+    await TestingLibrary.waitFor(() => {
       expect(getByText("Umidade mínima: 30%")).toBeTruthy();
       expect(getByText("Umidade máxima: 70%")).toBeTruthy();
     });
@@ -51,22 +51,23 @@ describe("ControleScreen", () => {
 
     fetch.mockResolvedValueOnce({ ok: true });
 
-    const { getByText, getAllByA11yRole } = render(<ControleScreen />);
+    const { getByText, getByTestId } = TestingLibrary.render(<ControleScreen />);
 
-    await waitFor(() => {
+    await TestingLibrary.waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    const sliders = getAllByA11yRole("adjustable");
+    const minUmidadeSlider = getByTestId("minUmidadeSlider");
+    const maxUmidadeSlider = getByTestId("maxUmidadeSlider");
     const salvarBtn = getByText("Salvar Configurações");
 
 
-    fireEvent(sliders[0], "valueChange", 40);
-    fireEvent(sliders[1], "valueChange", 75);
+    TestingLibrary.fireEvent(minUmidadeSlider, "valueChange", 40);
+    TestingLibrary.fireEvent(maxUmidadeSlider, "valueChange", 75);
 
-    fireEvent.press(salvarBtn);
+    TestingLibrary.fireEvent.press(salvarBtn);
 
-    await waitFor(() => {
+    await TestingLibrary.waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
         "http://192.168.0.X:3001/api/controle/1",
         expect.objectContaining({

@@ -61,6 +61,7 @@ export default function ControleScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Umidade mínima: {minUmidade}%</Text>
           <Slider
+            testID="minUmidadeSlider"
             style={styles.slider}
             value={minUmidade}
             onValueChange={setMinUmidade}
@@ -75,6 +76,7 @@ export default function ControleScreen() {
         <View style={styles.card}>
           <Text style={styles.label}>Umidade máxima: {maxUmidade}%</Text>
           <Slider
+            testID="maxUmidadeSlider" 
             style={styles.slider}
             value={maxUmidade}
             onValueChange={setMaxUmidade}
