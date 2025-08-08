@@ -11,16 +11,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Altere conforme o IP do seu backend local
+
 const API_URL = "http://192.168.0.X:3001/api/historico";
 
 export default function HistoryScreen() {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all"); // all, 7days, 30days
+  const [filter, setFilter] = useState("all");
   const [historico, setHistorico] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const userId = 1; // ID do usuário logado
+  const userId = 1;
 
   useEffect(() => {
     const fetchHistorico = async () => {

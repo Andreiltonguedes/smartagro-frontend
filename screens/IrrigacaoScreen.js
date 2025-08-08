@@ -34,7 +34,7 @@ export default function IrrigationScreen() {
   const handleToggleModo = () => {
     const novoModo = !modoAutomatico;
     setModoAutomatico(novoModo);
-    setBombaLigada(false); // Sempre desligar ao trocar o modo
+    setBombaLigada(false);
 
     Alert.alert(
       "Modo de Irrigação",

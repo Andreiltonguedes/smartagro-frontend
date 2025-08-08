@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Switch, StyleSheet, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
-// Substitua pelo IP local do seu servidor backend
+
 const API_URL = "http://192.168.0.X:3001/api/configuracoes";
 
 export default function Configuracoes() {
   const [notificacoes, setNotificacoes] = useState(true);
   const [modoEconomia, setModoEconomia] = useState(false);
 
-  const userId = 1; // ID do usuário logado (exemplo fixo — ideal usar auth)
+  const userId = 1;
 
-  // Buscar configurações do usuário
+
   const fetchConfiguracoes = async () => {
     try {
       const res = await fetch(`${API_URL}/${userId}`);
@@ -28,7 +28,7 @@ export default function Configuracoes() {
     }
   };
 
-  // Salvar alterações
+
   const salvarConfiguracoes = async (novasConfigs) => {
     try {
       await fetch(`${API_URL}/${userId}`, {
@@ -41,19 +41,19 @@ export default function Configuracoes() {
     }
   };
 
-  // Efeito inicial
+
   useEffect(() => {
     fetchConfiguracoes();
   }, []);
 
-  // Atualizar notificações
+
   const toggleNotificacoes = () => {
     const novoValor = !notificacoes;
     setNotificacoes(novoValor);
     salvarConfiguracoes({ notificacoes: novoValor, modo_economia: modoEconomia });
   };
 
-  // Atualizar modo economia
+
   const toggleModoEconomia = () => {
     const novoValor = !modoEconomia;
     setModoEconomia(novoValor);

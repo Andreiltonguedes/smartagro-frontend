@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Substitua pelo IP da sua máquina na rede local
+
 const API_URL = "http://192.168.0.X:3001/api/controle";
 
 export default function ControleScreen() {
   const [minUmidade, setMinUmidade] = useState(35);
   const [maxUmidade, setMaxUmidade] = useState(55);
 
-  const userId = 1; // Substitua com o ID real do usuário logado
+  const userId = 1;
 
   const fetchConfiguracao = async () => {
     try {
